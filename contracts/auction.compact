@@ -22,17 +22,17 @@ pragma language_version >= 0.23.0;
 import CompactStandardLibrary;
 
 export ledger highest_bid: Uint<32>;
-export ledger highest_bidder: Bytes<32>;
+export ledger highest_bidder: Uint<32>;
 export ledger is_active: Boolean;
 
 constructor() {
   highest_bid = 0;
-  highest_bidder = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+  highest_bidder = 0;
   is_active = true;
 }
 
 witness my_bid(): Uint<32>;
-witness my_public_key(): Bytes<32>;
+witness my_public_key(): Uint<32>;
 
 export circuit bid(): [] {
   assert(is_active == true, "Auction is already closed");
