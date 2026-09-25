@@ -28,7 +28,10 @@ jobs:
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
       - name: Verify Compact Version
-        run: compact --version
+        run: |
+          compact --version
+          compact update
+          compact default 0.31.1
 
       - name: Compile Contract
         run: compact compile
