@@ -19,9 +19,11 @@
 
 pragma language_version >= 0.23.0;
 
-export ledger highest_bid: Uint32;
+import CompactStandardLibrary;
+
+export ledger highest_bid: Uint<32>;
 export ledger highest_bidder: Bytes<32>;
-export ledger is_active: Boolean;
+export ledger is_active: boolean;
 
 constructor() {
   highest_bid = 0;
@@ -29,7 +31,7 @@ constructor() {
   is_active = true;
 }
 
-witness my_bid(): Uint32;
+witness my_bid(): Uint<32>;
 witness my_public_key(): Bytes<32>;
 
 export circuit bid(): [] {
