@@ -3,30 +3,48 @@ name: Deploy Contract to Preview
 on:
   workflow_dispatch:
     inputs:
-      wallet_seed:
-        description: 'Wallet seed hex (leave empty to generate new wallet)'
+      wallet_mnemonic:
+        description: '24-word mnemonic (from get-address step). Leave empty to generate new.'
         required: false
         type: string
-      skip_funding_wait:
-        description: 'Skip faucet funding wait (wallet already funded)'
-        required: false
-        type: boolean
-        default: false
+      action:
+        description: 'What to do'
+        required: true
+        type: choice
+        options:
+          - get-address
+          - deploy
+        default: get-address
 
 jobs:
+  get-address:
+    if: inputs.action == 'get-address'
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: npm install
+      - name: Get Wallet Address
+        env:
+          MIDNIGHT_WALLET_MNEMONIC: ${{ inputs.wallet_mnemonic }}
+          NODE_OPTIONS: "--max-old-space-size=8192"
+        run: npx tsx src/get-address.ts --network preview
+
   deploy:
+    if: inputs.action == 'deploy'
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v4
 
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
+      - uses: actions/setup-node@v4
         with:
           node-version: 22
 
-      - name: Install Dependencies
-        run: npm install
+      - run: npm install
 
       - name: Install Compact Compiler
         run: |
@@ -57,17 +75,16 @@ jobs:
 
       - name: Deploy to Preview Network
         env:
-          MIDNIGHT_WALLET_SEED: ${{ inputs.wallet_seed }}
+          MIDNIGHT_WALLET_MNEMONIC: ${{ inputs.wallet_mnemonic }}
           NODE_OPTIONS: "--max-old-space-size=12288"
-        run: |
-          npx tsx src/deploy.ts --network preview
+        run: npx tsx src/deploy.ts --network preview
         timeout-minutes: 20
 
       - name: Extract Contract Address
         id: extract
         run: |
           if [ -f .midnight-state.json ]; then
-            ADDRESS=$(cat .midnight-state.json | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('deployments',{}).get('preview',{}).get('address','NOT_FOUND'))")
+            ADDRESS=$(python3 -c "import sys,json; d=json.load(open('.midnight-state.json')); print(d.get('deployments',{}).get('preview',{}).get('address','NOT_FOUND'))")
             echo "contract_address=$ADDRESS" >> $GITHUB_OUTPUT
             echo "Contract Address: $ADDRESS"
           else
