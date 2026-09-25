@@ -33,7 +33,7 @@ jobs:
           compact update
 
       - name: Compile Contract
-        run: compact compile
+        run: compact compile contracts/auction.compact managed/auction
 
       - name: Run Tests
         run: npm test
