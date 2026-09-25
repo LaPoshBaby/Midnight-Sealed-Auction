@@ -170,9 +170,16 @@ async function main() {
   console.log('  ℹ  This may take several minutes depending on network size.');
   console.log('     RPC disconnection messages during sync are normal and can be safely ignored.\n');
   const syncStart = Date.now();
-  const syncInterval = setInterval(() => {
+  let lastPersist = Date.now();
+  const syncInterval = setInterval(async () => {
     const elapsed = Math.round((Date.now() - syncStart) / 1000);
     process.stdout.write(`\r  ⏳ Still syncing... (${elapsed}s elapsed)   `);
+    if (Date.now() - lastPersist > 60_000) {
+      lastPersist = Date.now();
+      try {
+        await persistWalletState(network, walletCtx);
+      } catch {}
+    }
   }, 5000);
   const state = await walletCtx.wallet.waitForSyncedState();
   clearInterval(syncInterval);
