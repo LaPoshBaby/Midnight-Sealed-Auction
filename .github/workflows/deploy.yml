@@ -33,6 +33,11 @@ jobs:
           curl --proto '=https' --tlsv1.2 -LsSf https://github.com/midnightntwrk/compact/releases/latest/download/compact-installer.sh | sh
           echo "$HOME/.local/bin" >> $GITHUB_PATH
 
+      - name: Set Default Compiler
+        run: |
+          compact --version
+          compact update
+
       - name: Compile Contract
         run: compact compile contracts/auction.compact managed/auction
 
