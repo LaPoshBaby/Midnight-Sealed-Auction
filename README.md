@@ -5,7 +5,7 @@
 | Network  | Address                                                          |
 |----------|------------------------------------------------------------------|
 | Preview  | `b671842d01b496fe92996677264432174343c0560d0b6d7bfed48612ac95702e` |
-| Preprod  | [PASTE ADDRESS AFTER DEPLOY]                                     |
+| Preprod  | `ddfce3729deff0625222a385625130a06a8f5467592d5fd8d8b3a0fa3bcc8fb7` |
 
 ## What This Does
 This contract implements a sealed-bid auction. Participants submit their bids privately using zero-knowledge proofs. The contract logic ensures that a bid is only accepted if it is strictly greater than the current highest bid. Losing bids are rejected at the client level and never touch the public blockchain.
