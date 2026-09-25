@@ -33,13 +33,13 @@ witness my_bid(): Uint32;
 witness my_public_key(): Bytes<32>;
 
 export circuit bid(): [] {
-  assert is_active == true "Auction is already closed";
+  assert(is_active == true, "Auction is already closed");
   
   const bid_amount = my_bid();
   const current_highest = highest_bid;
   
   // Prove that the private bid is higher than the current highest bid
-  assert bid_amount > current_highest "Bid is not high enough";
+  assert(bid_amount > current_highest, "Bid is not high enough");
   
   // Deliberately disclose the new highest bid to the public ledger
   highest_bid = disclose(bid_amount);
