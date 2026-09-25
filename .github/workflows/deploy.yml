@@ -101,7 +101,7 @@ jobs:
           sed -i "s|\[PASTE ADDRESS AFTER DEPLOY\]|${{ steps.extract.outputs.contract_address }}|" README.md
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
-          git add README.md .midnight-state.json managed/
+          git add -f README.md .midnight-state.json managed/
           git commit -m "feat: deploy contract to preview - address ${{ steps.extract.outputs.contract_address }}" || echo "No changes"
           git push
 
