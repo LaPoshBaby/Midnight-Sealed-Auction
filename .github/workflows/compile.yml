@@ -31,7 +31,6 @@ jobs:
         run: |
           compact --version
           compact update
-          compact default 0.31.1
 
       - name: Compile Contract
         run: compact compile
