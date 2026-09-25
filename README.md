@@ -70,7 +70,11 @@ The test suite in [`tests/auction.test.ts`](tests/auction.test.ts) provides 5 in
 - **Privacy Verification (Witness Isolation):** Verifies that private witnesses (`my_bid`, `my_public_key`) and private state secrets are isolated from the public ledger state.
 
 ## Demo Video
-[PLACEHOLDER — I will add the link after recording]
+- **Walkthrough Video (MP4):** [docs/demo.mp4](docs/demo.mp4)
+- **Live Animated Walkthrough:**
+
+![Level 2 Demo Walkthrough](docs/demo.gif)
+
 
 ## Initial Idea
 In traditional on-chain auctions, every bid is either public or vulnerable to front-running, maximal extractable value (MEV), and bidder collusion. Even on Ethereum, pseudo-sealed auctions require multi-phase commit-reveal schemes with high gas overhead or centralized auctioneers who can leak bid data. The inspiration behind this project was to leverage Midnight Network's native zero-knowledge architecture to build a true one-round, private sealed-bid auction: participants submit cryptographically shielded bids using zero-knowledge proofs where losing bids are rejected off-chain and never revealed, preserving complete bidder privacy while publicly declaring only genuine higher bids.
