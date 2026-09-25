@@ -1,8 +1,16 @@
-name: Deploy Contract to Preview
+name: Deploy Contract
 
 on:
   workflow_dispatch:
     inputs:
+      network:
+        description: 'Target network'
+        required: true
+        type: choice
+        options:
+          - preprod
+          - preview
+        default: preprod
       wallet_mnemonic:
         description: '24-word mnemonic (from get-address step). Leave empty to generate new.'
         required: false
@@ -34,7 +42,7 @@ jobs:
         env:
           MIDNIGHT_WALLET_MNEMONIC: ${{ inputs.wallet_mnemonic }}
           NODE_OPTIONS: "--max-old-space-size=8192"
-        run: npx tsx src/get-address.ts --network preview
+        run: npx tsx src/get-address.ts --network ${{ inputs.network }}
 
   deploy:
     if: inputs.action == 'deploy'
@@ -76,18 +84,18 @@ jobs:
             sleep 2
           done
 
-      - name: Deploy to Preview Network
+      - name: Deploy to Network
         env:
           MIDNIGHT_WALLET_MNEMONIC: ${{ inputs.wallet_mnemonic }}
           NODE_OPTIONS: "--max-old-space-size=12288"
-        run: npx tsx src/deploy.ts --network preview
+        run: npx tsx src/deploy.ts --network ${{ inputs.network }}
         timeout-minutes: 20
 
       - name: Extract Contract Address
         id: extract
         run: |
           if [ -f .midnight-state.json ]; then
-            ADDRESS=$(python3 -c "import sys,json; d=json.load(open('.midnight-state.json')); print(d.get('deployments',{}).get('preview',{}).get('address','NOT_FOUND'))")
+            ADDRESS=$(python3 -c "import sys,json; d=json.load(open('.midnight-state.json')); print(d.get('deployments',{}).get('${{ inputs.network }}',{}).get('address','NOT_FOUND'))")
             echo "contract_address=$ADDRESS" >> $GITHUB_OUTPUT
             echo "Contract Address: $ADDRESS"
           else
@@ -98,11 +106,15 @@ jobs:
       - name: Update README with Contract Address
         if: steps.extract.outputs.contract_address != 'NOT_FOUND'
         run: |
-          sed -i "s|\[PASTE ADDRESS AFTER DEPLOY\]|${{ steps.extract.outputs.contract_address }}|" README.md
-          git config --global user.name "github-actions[bot]"
-          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          if [ "${{ inputs.network }}" = "preview" ]; then
+            sed -i "s|\| Preview  \|.*|\| Preview  \| \`${{ steps.extract.outputs.contract_address }}\` \||" README.md
+          else
+            sed -i "s|\| Preprod  \|.*|\| Preprod  \| \`${{ steps.extract.outputs.contract_address }}\` \||" README.md
+          fi
+          git config --global user.name "LaPoshBaby"
+          git config --global user.email "274914111+LaPoshBaby@users.noreply.github.com"
           git add -f README.md .midnight-state.json managed/
-          git commit -m "feat: deploy contract to preview - address ${{ steps.extract.outputs.contract_address }}" || echo "No changes"
+          git commit -m "feat: deploy contract to ${{ inputs.network }} - address ${{ steps.extract.outputs.contract_address }}" || echo "No changes"
           git push
 
       - name: Print Summary
@@ -111,7 +123,7 @@ jobs:
           echo "  DEPLOYMENT COMPLETE"
           echo "============================================"
           echo ""
-          echo "  Network:          preview"
+          echo "  Network:          ${{ inputs.network }}"
           echo "  Contract Address: ${{ steps.extract.outputs.contract_address }}"
           echo ""
           echo "============================================"
