@@ -49,7 +49,16 @@ npm test
 ```
 
 ## Initial Idea
-[LEAVE PLACEHOLDER — I will fill this in manually]
+In traditional on-chain auctions, every bid is either public or vulnerable to front-running, maximal extractable value (MEV), and bidder collusion. Even on Ethereum, pseudo-sealed auctions require multi-phase commit-reveal schemes with high gas overhead or centralized auctioneers who can leak bid data. The inspiration behind this project was to leverage Midnight Network's native zero-knowledge architecture to build a true one-round, private sealed-bid auction: participants submit cryptographically shielded bids using zero-knowledge proofs where losing bids are rejected off-chain and never revealed, preserving complete bidder privacy while publicly declaring only genuine higher bids.
 
 ## Screenshots
-[LEAVE PLACEHOLDER — I will add compile output and contract address screenshots]
+
+### 1. Contract Compilation & Test Suite
+![Compile & Test](docs/screenshots/compile_and_test.png)
+
+### 2. Preprod Deployment & On-Chain Contract Confirmation
+![Preprod Deployment](docs/screenshots/deployment_preprod.png)
+
+### 3. GitHub Actions CI/CD Run (#36119554846)
+![GitHub Actions CI/CD Deployment](docs/screenshots/github_workflow_run.png)
+
