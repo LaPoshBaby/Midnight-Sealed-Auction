@@ -2,10 +2,10 @@
 > A privacy-preserving sealed-bid auction contract on the Midnight Network where losing bids remain completely private.
 
 ## Contract Address
-| Network  | Address                          |
-|----------|----------------------------------|
-| Preview  | [PASTE ADDRESS AFTER DEPLOY]     |
-| Preprod  | [PASTE ADDRESS AFTER DEPLOY]     |
+| Network  | Address                                                          |
+|----------|------------------------------------------------------------------|
+| Preview  | `b671842d01b496fe92996677264432174343c0560d0b6d7bfed48612ac95702e` |
+| Preprod  | [PASTE ADDRESS AFTER DEPLOY]                                     |
 
 ## What This Does
 This contract implements a sealed-bid auction. Participants submit their bids privately using zero-knowledge proofs. The contract logic ensures that a bid is only accepted if it is strictly greater than the current highest bid. Losing bids are rejected at the client level and never touch the public blockchain.

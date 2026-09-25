@@ -1,0 +1,17 @@
+{
+  "version": 1,
+  "activeNetwork": "preview",
+  "wallets": {
+    "preview": {
+      "mnemonic": "clutch pulp taste enjoy fee change struggle false false hover antique invite film strategy train curve slush swing imitate steel calm chalk oval luggage",
+      "createdAt": "2026-09-25T02:05:27.701Z"
+    }
+  },
+  "deployments": {
+    "preview": {
+      "address": "b671842d01b496fe92996677264432174343c0560d0b6d7bfed48612ac95702e",
+      "deployer": "mn_addr_preview19jgyvdap904xz2ga9kayh5vl9nws2ax3g2xew97sn8rkkxla6hhqxr7jl6",
+      "deployedAt": "2026-09-25T04:16:43.812Z"
+    }
+  }
+}
