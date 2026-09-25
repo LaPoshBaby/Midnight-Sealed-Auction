@@ -53,11 +53,12 @@ The privacy architecture separates public on-chain verifiable state from private
 | `my_public_key` | **PRIVATE** | Client Witness | Bidder's identity witness, shielded for non-winning bids |
 | Losing Bids | **SHIELDED** | Browser Memory | Bids below `highest_bid` revert locally; **0 bytes touch the chain** |
 
-### What the User Proves Without Revealing
+### Observable Privacy Behavior (Something Proven Without Being Shown)
 Using the Compact ZK circuit, the bidder proves the following statement:
 > *"I possess a valid bid amount $b$ and a public key $pk$ such that $b > \text{highest\_bid}_{\text{current}}$ and the auction is active."*
 
-If the proof succeeds, $b$ and $pk$ are deliberately disclosed to become the new public ledger state. If $b \le \text{highest\_bid}_{\text{current}}$, the circuit assertion fails locally inside the client's prover, ensuring no record of the attempt ever reaches the mempool or chain.
+- **Proven without being shown:** The exact bid amount $b$ is held in the client-side witness and validated locally against circuit constraints. If the bid is equal to or lower than the current highest bid, the circuit assertion aborts locally in the browser prover — **the bid amount is never published, never stored, and never revealed to the chain or observers**.
+- **Deliberate disclosure:** Only upon a cryptographically verified higher bid is the new state disclosed to update the on-chain ledger.
 
 ---
 
@@ -173,13 +174,20 @@ In traditional on-chain auctions, every bid is either public or vulnerable to fr
 
 ---
 
-## Level 2 Submission Checklist
-- [x] **Midnight.js SDK Integration:** Integrated via `@midnight-ntwrk/dapp-connector-api`, `@midnight-ntwrk/midnight-js-network-id`, and full Preprod provider set
-- [x] **Lace Wallet Integration:** Wallet connect/disconnect, address formatting, clipboard copy, and error handling
-- [x] **Circuit Execution:** `bid()` circuit triggered from the UI with local proving and loading states
-- [x] **Zero Private Input Exposure:** Private bid amount remains in client witness sandbox with explicit `🔒 Proved without revealing your input` guarantee
-- [x] **Live Vercel Demo:** Publicly accessible at [https://midnight-sealed-auction.vercel.app](https://midnight-sealed-auction.vercel.app)
-- [x] **Preprod Contract Address:** Deployed and verified at `ddfce3729deff0625222a385625130a06a8f5467592d5fd8d8b3a0fa3bcc8fb7`
-- [x] **Complete Privacy Model & Privacy Claim:** Exhaustively documented with public vs. private state breakdowns
-- [x] **Walkthrough Video & Media:** High-resolution MP4 video and animated GIF embedded in README
-- [x] **Commit History:** 43+ meaningful commits authored by `LaPoshBaby`
+## Requirements to Pass
+- [x] **Lace wallet connect / disconnect implemented:** Full connect, disconnect, address formatting, clipboard copy, and error handling.
+- [x] **Circuit called successfully from the frontend:** The `bid()` circuit executes from the UI with animated local proving.
+- [x] **An observable privacy behavior (something proven without being shown):** Shielded bid amount is proven to be strictly higher than the current highest bid without exposing losing bids on-chain (`🔒 Proved without revealing your input`).
+- [x] **Contract deployed to Preprod with a verifiable address:** Deployed at `ddfce3729deff0625222a385625130a06a8f5467592d5fd8d8b3a0fa3bcc8fb7`.
+- [x] **Minimum 8 meaningful commits:** 44+ meaningful commits authored by `LaPoshBaby`.
+
+---
+
+## Submission Checklist
+- [x] **Public GitHub repository with README:** [https://github.com/LaPoshBaby/Midnight-Sealed-Auction](https://github.com/LaPoshBaby/Midnight-Sealed-Auction)
+- [x] **Live demo link (Vercel, Netlify, or similar):** [https://midnight-sealed-auction.vercel.app](https://midnight-sealed-auction.vercel.app)
+- [x] **Deployed Preprod contract address (verifiable on-chain):** `ddfce3729deff0625222a385625130a06a8f5467592d5fd8d8b3a0fa3bcc8fb7`
+- [x] **Demo video: wallet connect + a successful circuit call:** Embedded above ([`docs/demo.mp4`](docs/demo.mp4) & [`docs/demo.gif`](docs/demo.gif))
+- [x] **README documenting the privacy claim:** Fully documented under [Privacy Claim](#privacy-claim) & [Privacy Model](#privacy-model)
+- [x] **Minimum 8 meaningful commits:** 44+ commits authored by `LaPoshBaby`
+
