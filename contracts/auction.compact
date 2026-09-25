@@ -1,0 +1,52 @@
+/*
+ * MIDNIGHT SEALED-BID AUCTION
+ * 
+ * Privacy Model:
+ * PUBLIC: 
+ * - The `highest_bid` (the current winning amount, once disclosed).
+ * - The `highest_bidder` (the public key or identifier of the current winner).
+ * - `is_active` (whether the auction is currently accepting bids).
+ *
+ * PRIVATE:
+ * - The actual bid amount submitted by a user (witness `my_bid`).
+ * - The user's secret key/credential.
+ *
+ * WHAT IS PROVED:
+ * - A user proves their private `my_bid` is strictly greater than the public `highest_bid`.
+ * - If the proof succeeds, the contract discloses the new `my_bid` to become the public `highest_bid`.
+ * - Bidders whose bids are lower cannot even submit a valid transaction, meaning losing bids remain 100% private and never touch the chain!
+ */
+
+pragma language_version >= 0.23.0;
+
+export ledger highest_bid: Uint32;
+export ledger highest_bidder: Bytes<32>;
+export ledger is_active: Boolean;
+
+constructor() {
+  highest_bid = 0;
+  highest_bidder = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0];
+  is_active = true;
+}
+
+witness my_bid(): Uint32;
+witness my_public_key(): Bytes<32>;
+
+export circuit bid() {
+  assert is_active == true "Auction is already closed";
+  
+  const bid_amount = my_bid();
+  const current_highest = highest_bid;
+  
+  // Prove that the private bid is higher than the current highest bid
+  assert bid_amount > current_highest "Bid is not high enough";
+  
+  // Deliberately disclose the new highest bid to the public ledger
+  highest_bid = disclose(bid_amount);
+  highest_bidder = disclose(my_public_key());
+}
+
+export circuit close_auction() {
+  // In a real app this would be guarded by an admin check
+  is_active = false;
+}
