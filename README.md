@@ -86,6 +86,9 @@ In traditional on-chain auctions, every bid is either public or vulnerable to fr
 ### 3. GitHub Actions CI/CD Run (#36119554846)
 ![GitHub Actions CI/CD Deployment](docs/screenshots/github_workflow_run.png)
 
+### 4. Live Frontend DApp on Vercel
+![Live Frontend DApp](docs/screenshots/vercel_live_app.png)
+
 ## Submission Checklist
 - [x] Public GitHub repository with a README.md
 - [x] Setup instructions (how to run locally)
