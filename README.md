@@ -33,7 +33,11 @@ This contract implements a sealed-bid auction. Participants submit their bids pr
    ```bash
    docker run -p 6300:6300 midnightnetwork/proof-server
    ```
-3. Compile the contract:
+3. Install dependencies:
+   ```bash
+   npm install
+   ```
+4. Compile the contract:
    ```bash
    npm run compile
    ```
