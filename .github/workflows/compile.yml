@@ -30,13 +30,10 @@ jobs:
       - name: Verify Compact Version
         run: |
           compact --version
-          compact update
+          compact update 0.31.1
 
       - name: Compile Contract
-        run: |
-          compact compile contracts/auction.compact managed/auction
-          sed -i "s/__compactRuntime\.checkRuntimeVersion([^)]*);/\/\/ checkRuntimeVersion bypassed/" managed/auction/contract/index.js
-          sed -i 's/async initialState/initialState/g' managed/auction/contract/index.js
+        run: compact compile contracts/auction.compact managed/auction
 
       - name: Run Tests
         run: npm test
