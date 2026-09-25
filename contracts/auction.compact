@@ -23,7 +23,7 @@ import CompactStandardLibrary;
 
 export ledger highest_bid: Uint<32>;
 export ledger highest_bidder: Bytes<32>;
-export ledger is_active: boolean;
+export ledger is_active: Boolean;
 
 constructor() {
   highest_bid = 0;
