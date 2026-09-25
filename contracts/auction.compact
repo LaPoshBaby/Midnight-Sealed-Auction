@@ -32,7 +32,7 @@ constructor() {
 witness my_bid(): Uint32;
 witness my_public_key(): Bytes<32>;
 
-export circuit bid() {
+export circuit bid(): [] {
   assert is_active == true "Auction is already closed";
   
   const bid_amount = my_bid();
@@ -46,7 +46,7 @@ export circuit bid() {
   highest_bidder = disclose(my_public_key());
 }
 
-export circuit close_auction() {
+export circuit close_auction(): [] {
   // In a real app this would be guarded by an admin check
   is_active = false;
 }
