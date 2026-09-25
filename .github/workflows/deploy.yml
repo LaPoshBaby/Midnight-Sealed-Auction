@@ -60,7 +60,9 @@ jobs:
           compact update
 
       - name: Compile Contract
-        run: compact compile contracts/auction.compact managed/auction
+        run: |
+          compact compile contracts/auction.compact managed/auction
+          sed -i 's/async initialState/initialState/g' managed/auction/contract/index.js
 
       - name: Start Proof Server
         run: |

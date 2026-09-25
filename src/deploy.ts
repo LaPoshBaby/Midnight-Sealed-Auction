@@ -85,6 +85,12 @@ if (!fs.existsSync(contractPath)) {
   process.exit(1);
 }
 
+// Ensure initialState is synchronous as expected by ContractExecutable
+const contractCode = fs.readFileSync(contractPath, 'utf-8');
+if (contractCode.includes('async initialState')) {
+  fs.writeFileSync(contractPath, contractCode.replace(/async\s+initialState/g, 'initialState'), 'utf-8');
+}
+
 const Auction = await import(pathToFileURL(contractPath).href);
 
 const witnesses = {
