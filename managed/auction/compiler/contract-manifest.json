@@ -1,0 +1,78 @@
+{
+  "manifest-version": "1",
+  "compiler-version": "0.34.0",
+  "language-version": "0.26.0",
+  "runtime-version": "0.19.0",
+  "compiler": {
+    "type": "directory",
+    "contract-info.json": {
+      "type": "file",
+      "size": 1447,
+      "hash": "6bcdafe66192ee7e466149c1ca57082563859c81b7df63576cb17b7c4fcee2c5"
+    }
+  },
+  "contract": {
+    "type": "directory",
+    "index.d.ts": {
+      "type": "file",
+      "size": 1877,
+      "hash": "45f332baa3a0f37dd778260c0c92b325983123106105411e74cdc8f3d010f10c"
+    },
+    "index.js": {
+      "type": "file",
+      "size": 26284,
+      "hash": "c7afef2f0cf8e7f8c4695ebe5ac2a993c7ebeaf6518be0debdb80c700f1547da"
+    },
+    "index.js.map": {
+      "type": "file",
+      "size": 985,
+      "hash": "484cc32344ce45c26b73dbb700f475549ffc81feee243ec82ca46e1d92224bea"
+    }
+  },
+  "zkir": {
+    "type": "directory",
+    "bid.bzkir": {
+      "type": "file",
+      "size": 202,
+      "hash": "5b44b9a1fde4a4c21d98a777f190eb064e7e07aed5e47f28761d55f3ba1efcbe"
+    },
+    "bid.zkir": {
+      "type": "file",
+      "size": 3373,
+      "hash": "8fb635352a590a6195cff67b0474cf7d78cd00f5a15d90e0712694ca4d273742"
+    },
+    "close_auction.bzkir": {
+      "type": "file",
+      "size": 73,
+      "hash": "e3e7af96aa1bca2e593bd32cb5f2238634aaa7c04327af97fe0d222420bfb922"
+    },
+    "close_auction.zkir": {
+      "type": "file",
+      "size": 1003,
+      "hash": "02b131fe49a2c7a6fdcf128c9a6ee43e73aa69ca9d30e73b34d54c876ceef427"
+    }
+  },
+  "keys": {
+    "type": "directory",
+    "bid.prover": {
+      "type": "file",
+      "size": 147643,
+      "hash": "5c5cb19a2e63bc3ef8901ecb1d9313eb66fab9b706dad18eb7e6944c4218e87f"
+    },
+    "bid.verifier": {
+      "type": "file",
+      "size": 1351,
+      "hash": "230a6adc5b8341bcb5534a372f07bb85be3d42b8118b329090626d18bd3f31e8"
+    },
+    "close_auction.prover": {
+      "type": "file",
+      "size": 14103,
+      "hash": "1cc2f11af395d7187132199b57c6a7d9f33672569d3a743d2200c7f925b9aeff"
+    },
+    "close_auction.verifier": {
+      "type": "file",
+      "size": 1351,
+      "hash": "5502cd7f324cc55ba80d9e325e54dff53f17572bc128eb8cb4c552a051f41847"
+    }
+  }
+}

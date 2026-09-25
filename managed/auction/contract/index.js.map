@@ -1,0 +1,8 @@
+{
+  "version": 3,
+  "file": "index.js",
+  "sourceRoot": "../../../",
+  "sources": ["contracts/auction.compact"],
+  "names": [],
+  "mappings": ";;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;EA2BA;;;;;;;;;;;;;;;;MASA,AAAA,GAYC;;;;;;;;;;;;;;;;;;;;;;;OAAA;MAED,AAAA,aAGC;;;;;;;;;;;;;;;;;;;;;;;OAAA;;;;;;;;;;GAtBA;EAJD;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;IAJA;;;;;;;;;yEAAoC;IACpC;;;;;;;;;yEAAuC;IACvC;;;;;;;;;yEAAiC;UAG/B,KAAW;IAAX;;;;;;;2HAAA,KAAW;;yEAAA;UACX,KAAc;IAAd;;;;;;;2HAAA,KAAc;;yEAAA;IACd;;;;;;;;;yEAAS;;;;;;;GACV;EAED,AAAA,SAA2B;;0DAA3B,MAA2B;;;;;;;;;;;;;;GAAA;EAC3B,AAAA,gBAAkC;;0DAAlC,aAAkC;;;;;;;;;;;;;;GAAA;EAElC,AAAA,YAYC;oDAXQ;;;;;;;;;;;yHAAS;;;;UAEV,YAAqB;UACrB,iBAA6B,2BAAX;;;;;;;;;;;2HAAW;4BAG5B,YAAU,GAAG,iBAAe;;IAGnC;;;;;;;2HAAuB,YAAU;;yEAAtB;UACX,KAAc;IAAd;;;;;;;2HAAA,KAAc;;yEAAA;;GACf;EAED,AAAA,sBAGC;IADC;;;;;;;;;yEAAS;;GACV;;;;;;;;;;;;;;;;IA9BD;qCAAA;;;;;;;;;;;0GAAoC;KAAA;IACpC;qCAAA;;;;;;;;;;;0GAAuC;KAAA;IACvC;qCAAA;;;;;;;;;;;0GAAiC;KAAA;;;;;;;;;;;;;;;;;"
+}
