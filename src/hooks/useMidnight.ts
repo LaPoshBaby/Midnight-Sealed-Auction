@@ -1,7 +1,35 @@
 import { useState, useEffect, useCallback } from 'react';
+import type { DAppConnectorAPI, InitialAPI } from '@midnight-ntwrk/dapp-connector-api';
+import { setNetworkId, getNetworkId, NetworkId } from '@midnight-ntwrk/midnight-js-network-id';
+import * as compactRuntime from '@midnight-ntwrk/compact-runtime';
 
 export const PREPROD_CONTRACT_ADDRESS = 'ddfce3729deff0625222a385625130a06a8f5467592d5fd8d8b3a0fa3bcc8fb7';
 export const PREVIEW_CONTRACT_ADDRESS = 'b671842d01b496fe92996677264432174343c0560d0b6d7bfed48612ac95702e';
+
+export interface MidnightDAppProviders {
+  networkId: NetworkId;
+  contractAddress: string;
+  indexerHttpUrl: string;
+  indexerWsUrl: string;
+  proofServerUrl: string;
+}
+
+export const PREPROD_PROVIDERS: MidnightDAppProviders = {
+  networkId: 'preprod',
+  contractAddress: PREPROD_CONTRACT_ADDRESS,
+  indexerHttpUrl: 'https://indexer.preprod.midnight.network/api/v4/graphql',
+  indexerWsUrl: 'wss://indexer.preprod.midnight.network/api/v4/graphql/ws',
+  proofServerUrl: 'http://127.0.0.1:6300',
+};
+
+declare global {
+  interface Window {
+    midnight?: {
+      mnLace?: InitialAPI;
+      [key: string]: any;
+    };
+  }
+}
 
 export interface TxResult {
   txHash: string;
@@ -65,16 +93,17 @@ export function useMidnight(): UseMidnightState {
   const connect = useCallback(async () => {
     setError(null);
     try {
-      const midnight = (window as any).midnight;
-      if (midnight?.mnLace) {
-        // Real Lace Wallet connection
+      if (typeof window !== 'undefined' && window.midnight?.mnLace) {
+        // Real Lace Wallet connection via DAppConnectorAPI
         try {
-          const api = await midnight.mnLace.enable();
+          const laceApi = window.midnight.mnLace;
+          const api: DAppConnectorAPI = await laceApi.enable();
           const address = await api.getChangeAddress();
           setWalletAddress(address);
           setWalletBalance('10,000,000 tNIGHT');
           setIsConnected(true);
           setNetwork('preprod');
+          setNetworkId('preprod');
           return;
         } catch (laceErr: any) {
           if (laceErr?.code === -32000 || laceErr?.message?.includes('reject')) {
