@@ -47,7 +47,7 @@ jobs:
   deploy:
     if: inputs.action == 'deploy'
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 90
     steps:
       - uses: actions/checkout@v4
 
@@ -56,6 +56,14 @@ jobs:
           node-version: 22
 
       - run: npm install
+
+      - name: Cache Midnight Wallet State
+        uses: actions/cache@v4
+        with:
+          path: .midnight-wallet-state
+          key: midnight-wallet-state-${{ inputs.network }}-${{ github.run_id }}
+          restore-keys: |
+            midnight-wallet-state-${{ inputs.network }}-
 
       - name: Install Compact Compiler
         run: |
@@ -89,7 +97,7 @@ jobs:
           MIDNIGHT_WALLET_MNEMONIC: ${{ inputs.wallet_mnemonic }}
           NODE_OPTIONS: "--max-old-space-size=12288"
         run: npx tsx src/deploy.ts --network ${{ inputs.network }}
-        timeout-minutes: 45
+        timeout-minutes: 80
 
       - name: Extract Contract Address
         id: extract
