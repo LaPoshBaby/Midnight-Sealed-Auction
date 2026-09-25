@@ -1,0 +1,96 @@
+name: Deploy Contract to Preview
+
+on:
+  workflow_dispatch:
+    inputs:
+      wallet_seed:
+        description: 'Wallet seed hex (leave empty to generate new wallet)'
+        required: false
+        type: string
+      skip_funding_wait:
+        description: 'Skip faucet funding wait (wallet already funded)'
+        required: false
+        type: boolean
+        default: false
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Install Dependencies
+        run: npm install
+
+      - name: Install Compact Compiler
+        run: |
+          curl --proto '=https' --tlsv1.2 -LsSf https://github.com/midnightntwrk/compact/releases/latest/download/compact-installer.sh | sh
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Compile Contract
+        run: compact compile contracts/auction.compact managed/auction
+
+      - name: Start Proof Server
+        run: |
+          docker pull midnightnetwork/proof-server:latest || true
+          docker run -d -p 6300:6300 --name proof-server midnightnetwork/proof-server:latest
+          echo "Waiting for proof server to start..."
+          for i in $(seq 1 30); do
+            if curl -s http://127.0.0.1:6300 > /dev/null 2>&1; then
+              echo "Proof server is ready!"
+              break
+            fi
+            echo "  Attempt $i/30..."
+            sleep 2
+          done
+
+      - name: Deploy to Preview Network
+        env:
+          MIDNIGHT_WALLET_SEED: ${{ inputs.wallet_seed }}
+          NODE_OPTIONS: "--max-old-space-size=12288"
+        run: |
+          npx tsx src/deploy.ts --network preview
+        timeout-minutes: 20
+
+      - name: Extract Contract Address
+        id: extract
+        run: |
+          if [ -f .midnight-state.json ]; then
+            ADDRESS=$(cat .midnight-state.json | python3 -c "import sys,json; d=json.load(sys.stdin); print(d.get('deployments',{}).get('preview',{}).get('address','NOT_FOUND'))")
+            echo "contract_address=$ADDRESS" >> $GITHUB_OUTPUT
+            echo "Contract Address: $ADDRESS"
+          else
+            echo "No .midnight-state.json found"
+            echo "contract_address=NOT_FOUND" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Update README with Contract Address
+        if: steps.extract.outputs.contract_address != 'NOT_FOUND'
+        run: |
+          sed -i "s|\[PASTE ADDRESS AFTER DEPLOY\]|${{ steps.extract.outputs.contract_address }}|" README.md
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "github-actions[bot]@users.noreply.github.com"
+          git add README.md .midnight-state.json managed/
+          git commit -m "feat: deploy contract to preview - address ${{ steps.extract.outputs.contract_address }}" || echo "No changes"
+          git push
+
+      - name: Print Summary
+        run: |
+          echo "============================================"
+          echo "  DEPLOYMENT COMPLETE"
+          echo "============================================"
+          echo ""
+          echo "  Network:          preview"
+          echo "  Contract Address: ${{ steps.extract.outputs.contract_address }}"
+          echo ""
+          echo "============================================"
+
+      - name: Cleanup
+        if: always()
+        run: docker stop proof-server || true

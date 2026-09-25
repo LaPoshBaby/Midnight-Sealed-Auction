@@ -1,0 +1,10 @@
+node_modules/
+dist/
+.midnight-state.json
+.midnight-wallet-state/
+mn-demo2/
+*.log
+*.txt
+extract.ps1
+script.ps1
+releases.json
