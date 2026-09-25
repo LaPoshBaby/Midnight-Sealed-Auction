@@ -69,3 +69,13 @@ In traditional on-chain auctions, every bid is either public or vulnerable to fr
 ### 3. GitHub Actions CI/CD Run (#36119554846)
 ![GitHub Actions CI/CD Deployment](docs/screenshots/github_workflow_run.png)
 
+## Submission Checklist
+- [x] Public GitHub repository with a README.md
+- [x] Setup instructions (how to run locally)
+- [x] Screenshot: successful compile output (circuits listed)
+- [x] Screenshot: contract deployed with address shown
+- [x] README section explaining public state vs private witness
+- [x] Initial product idea paragraph
+- [x] Minimum 5 meaningful commits (36 commits total)
+
+
