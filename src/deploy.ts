@@ -87,8 +87,13 @@ if (!fs.existsSync(contractPath)) {
 
 const Auction = await import(pathToFileURL(contractPath).href);
 
+const witnesses = {
+  my_bid: (context: any) => [context?.privateState ?? {}, 100n],
+  my_public_key: (context: any) => [context?.privateState ?? {}, 1n],
+};
+
 const compiledContract = CompiledContract.make('auction', Auction.Contract).pipe(
-  CompiledContract.withVacantWitnesses,
+  CompiledContract.withWitnesses(witnesses),
   CompiledContract.withCompiledFileAssets(zkConfigPath),
 );
 
