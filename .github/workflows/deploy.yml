@@ -16,6 +16,9 @@ on:
           - deploy
         default: get-address
 
+permissions:
+  contents: write
+
 jobs:
   get-address:
     if: inputs.action == 'get-address'
