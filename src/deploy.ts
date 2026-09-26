@@ -19,6 +19,7 @@ import { indexerPublicDataProvider } from '@midnight-ntwrk/midnight-js-indexer-p
 import { levelPrivateStateProvider } from '@midnight-ntwrk/midnight-js-level-private-state-provider';
 import { NodeZkConfigProvider } from '@midnight-ntwrk/midnight-js-node-zk-config-provider';
 import { CompiledContract } from '@midnight-ntwrk/midnight-js-protocol/compact-js';
+import type { Witnesses } from '../managed/auction/contract/index.js';
 
 // @ts-expect-error Required for wallet sync
 globalThis.WebSocket = WebSocket;
@@ -96,13 +97,23 @@ if (patchedCode !== contractCode) {
 
 const Auction = await import(pathToFileURL(contractPath).href);
 
-const witnesses = {
-  my_bid: (context: any) => [context?.privateState ?? {}, 100n],
-  my_public_key: (context: any) => [context?.privateState ?? {}, 1n],
+// Typed exactly as the compiled contract declares them so the
+// `CompiledContract.withWitnesses` generic can infer the contract's private
+// state. The constructor never invokes a witness, so these placeholder values
+// are only exercised by `npm run deploy`; the frontend supplies the real
+// per-bid witness state (see src/midnight/auctionContract.ts).
+type DeployPrivateState = Record<string, unknown>;
+const witnesses: Witnesses<DeployPrivateState> = {
+  my_bid: (context) => [context.privateState, 100n],
+  my_public_key: (context) => [context.privateState, 1n],
 };
 
 const compiledContract = CompiledContract.make('auction', Auction.Contract).pipe(
-  CompiledContract.withWitnesses(witnesses),
+  // The contract module is loaded through a dynamic, path-computed import, so
+  // its type is `any` and the `withWitnesses` conditional generic collapses to
+  // `never`. The witness implementations themselves are typed above; this cast
+  // only satisfies the compiler and has no runtime effect.
+  CompiledContract.withWitnesses(witnesses as never),
   CompiledContract.withCompiledFileAssets(zkConfigPath),
 );
 
