@@ -24,10 +24,12 @@ export const App: React.FC = () => {
         {/* Wallet Connection Section */}
         <WalletConnect
           isConnected={midnight.isConnected}
+          isConnecting={midnight.isConnecting}
+          walletDetected={midnight.walletDetected}
           walletAddress={midnight.walletAddress}
           walletBalance={midnight.walletBalance}
           network={midnight.network}
-          error={midnight.error}
+          error={midnight.walletError}
           onConnect={midnight.connect}
           onDisconnect={midnight.disconnect}
           onClearError={midnight.clearError}
@@ -40,6 +42,7 @@ export const App: React.FC = () => {
           highestBid={midnight.highestBid}
           highestBidder={midnight.highestBidder}
           isAuctionActive={midnight.isAuctionActive}
+          isReadingState={midnight.isReadingState}
           isProving={midnight.isProving}
           provingStep={midnight.provingStep}
           isSubmitting={midnight.isSubmitting}
@@ -47,6 +50,7 @@ export const App: React.FC = () => {
           error={midnight.error}
           onBid={midnight.callBidCircuit}
           onCloseAuction={midnight.callCloseCircuit}
+          onRefresh={midnight.refreshPublicState}
           onClearError={midnight.clearError}
         />
 

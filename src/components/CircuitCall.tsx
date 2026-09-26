@@ -7,6 +7,7 @@ interface CircuitCallProps {
   highestBid: number;
   highestBidder: string;
   isAuctionActive: boolean;
+  isReadingState?: boolean;
   isProving: boolean;
   provingStep: string;
   isSubmitting: boolean;
@@ -14,6 +15,7 @@ interface CircuitCallProps {
   error: string | null;
   onBid: (amount: number) => Promise<boolean>;
   onCloseAuction: () => Promise<boolean>;
+  onRefresh?: () => Promise<boolean>;
   onClearError: () => void;
 }
 
@@ -23,6 +25,7 @@ export const CircuitCall: React.FC<CircuitCallProps> = ({
   highestBid,
   highestBidder,
   isAuctionActive,
+  isReadingState = false,
   isProving,
   provingStep,
   isSubmitting,
@@ -30,6 +33,7 @@ export const CircuitCall: React.FC<CircuitCallProps> = ({
   error,
   onBid,
   onCloseAuction,
+  onRefresh,
   onClearError,
 }) => {
   const [bidInput, setBidInput] = useState<string>((highestBid + 50).toString());
@@ -39,13 +43,19 @@ export const CircuitCall: React.FC<CircuitCallProps> = ({
     e.preventDefault();
     const val = Number(bidInput);
     if (!val || val <= 0) return;
-    await onBid(val);
+    const succeeded = await onBid(val);
+    // Clear the shielded input as soon as the call is settled so the private
+    // witness never lingers in the DOM after the proof has been produced.
+    if (succeeded) setBidInput('');
   };
 
   const formatHash = (h: string) => {
     if (h.length <= 24) return h;
     return `${h.slice(0, 16)}...${h.slice(-10)}`;
   };
+
+  const shortValue = (value: string) =>
+    value.length <= 20 ? value : `${value.slice(0, 14)}...${value.slice(-6)}`;
 
   const handleCopyTx = (tx: string) => {
     navigator.clipboard.writeText(tx);
@@ -66,6 +76,18 @@ export const CircuitCall: React.FC<CircuitCallProps> = ({
           <span className={`auction-status-badge ${isAuctionActive ? 'active' : 'closed'}`}>
             {isAuctionActive ? '🟢 AUCTION ACTIVE' : '🔴 AUCTION CLOSED'}
           </span>
+          {onRefresh && (
+            <button
+              type="button"
+              onClick={() => void onRefresh()}
+              disabled={isReadingState || isProving || isSubmitting}
+              className="btn-refresh-state"
+              id="refresh-state-btn"
+              title="Re-read the public contract state from the Preprod indexer"
+            >
+              {isReadingState ? 'Reading…' : '↻ Refresh state'}
+            </button>
+          )}
         </div>
       </div>
 
@@ -80,7 +102,7 @@ export const CircuitCall: React.FC<CircuitCallProps> = ({
         <div className="ledger-metric-box">
           <span className="metric-label">CURRENT HIGHEST BIDDER</span>
           <span className="metric-value-address" title={highestBidder}>
-            {highestBidder.slice(0, 14)}...{highestBidder.slice(-6)}
+            {shortValue(highestBidder)}
           </span>
           <span className="metric-subtext">Public winner identifier</span>
         </div>
@@ -236,12 +258,16 @@ export const CircuitCall: React.FC<CircuitCallProps> = ({
               <span className="row-label">Timestamp:</span>
               <span>{txResult.timestamp}</span>
             </div>
-            {txResult.disclosedHighestBid && (
+            {txResult.circuitName === 'bid()' && (
               <div className="result-row highlight-row">
-                <span className="row-label">Disclosed Highest Bid:</span>
-                <strong className="disclosed-amount">{txResult.disclosedHighestBid} tNIGHT</strong>
+                <span className="row-label">Disclosed on-chain (now public):</span>
+                <strong className="disclosed-amount">{highestBid} tNIGHT</strong>
               </div>
             )}
+            <div className="result-row">
+              <span className="row-label">Source of values:</span>
+              <span className="code-pill">Preprod indexer (post-finalization)</span>
+            </div>
           </div>
         </div>
       )}

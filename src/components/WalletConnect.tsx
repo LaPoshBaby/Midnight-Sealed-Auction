@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 
 interface WalletConnectProps {
   isConnected: boolean;
+  isConnecting?: boolean;
+  walletDetected?: boolean;
   walletAddress: string | null;
   walletBalance: string | null;
   network: string;
@@ -13,6 +15,8 @@ interface WalletConnectProps {
 
 export const WalletConnect: React.FC<WalletConnectProps> = ({
   isConnected,
+  isConnecting = false,
+  walletDetected = true,
   walletAddress,
   walletBalance,
   network,
@@ -22,16 +26,8 @@ export const WalletConnect: React.FC<WalletConnectProps> = ({
   onClearError,
 }) => {
   const [copied, setCopied] = useState(false);
-  const [connecting, setConnecting] = useState(false);
 
-  const handleConnect = async () => {
-    setConnecting(true);
-    try {
-      await onConnect();
-    } finally {
-      setConnecting(false);
-    }
-  };
+  const connecting = isConnecting;
 
   const handleCopy = () => {
     if (!walletAddress) return;
@@ -65,7 +61,7 @@ export const WalletConnect: React.FC<WalletConnectProps> = ({
           </button>
         ) : (
           <button 
-            onClick={handleConnect} 
+            onClick={onConnect} 
             disabled={connecting} 
             className="btn-connect"
             id="connect-wallet-btn"
@@ -119,7 +115,16 @@ export const WalletConnect: React.FC<WalletConnectProps> = ({
         </div>
       ) : (
         <div className="disconnected-notice">
-          <p>Wallet disconnected. Connect your Midnight Lace wallet to submit private bids and interact with the Preprod contract.</p>
+          <p>
+            Wallet disconnected. Connect your Midnight Lace wallet to submit private bids and
+            interact with the Preprod contract.
+          </p>
+          {!walletDetected && (
+            <p className="wallet-missing-hint">
+              No Midnight Lace wallet detected in this browser. Install the extension and reload
+              this page before connecting.
+            </p>
+          )}
         </div>
       )}
     </div>
