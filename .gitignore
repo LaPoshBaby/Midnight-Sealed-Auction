@@ -2,6 +2,8 @@ node_modules/
 dist/
 .midnight-wallet-state/
 mn-demo2/
+/public/zk/
+*.log
 *.log
 *.txt
 extract.ps1
