@@ -10,3 +10,4 @@ extract.ps1
 script.ps1
 releases.json
 .vercel
+.env*
