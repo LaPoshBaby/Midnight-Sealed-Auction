@@ -19,25 +19,29 @@ This dApp implements a decentralized sealed-bid auction. Participants connect th
 The frontend integrates the official Midnight.js SDK suite and DApp Connector standard for wallet connectivity, local proving, and Preprod network communication:
 
 ### 1. DApp Connector API (`@midnight-ntwrk/dapp-connector-api`)
-- Direct integration with Midnight Lace wallet via the browser injected `window.midnight.mnLace` object.
-- Uses `InitialAPI` interface to request permissions (`await mnLace.enable()`), returning a strongly typed `DAppConnectorAPI` session.
-- Accesses account addresses via `api.getChangeAddress()` and tracks balances.
-- Comprehensive error handling for user rejection (`code -32000`), extension absence, and network mismatch.
+- Discovers the injected Midnight Lace wallet at `window.midnight.mnLace` (`src/midnight/wallet.ts`).
+- Connects with the current DApp Connector 4.x surface: `InitialAPI.connect('preprod')` returns a typed `ConnectedAPI` session (the 4.x API has no `enable()`).
+- Reads account data from the connected session: `getConfiguration()`, `getUnshieldedAddress()`, `getShieldedAddresses()`, `getUnshieldedBalances()`.
+- Error handling is typed and user-visible: **wallet not installed**, **user rejected the connection**, and **network mismatch** (`WalletError.code` in `src/midnight/wallet.ts`, rendered as a dismissible banner by `WalletConnect.tsx`).
 
 ### 2. Network ID Management (`@midnight-ntwrk/midnight-js-network-id`)
 - Configured for Midnight Preprod: `setNetworkId('preprod')`.
 - Ensures transactions and proofs are scoped to the Preprod network ID and validated against Preprod genesis parameters.
+- Note: the challenge text also lists `@midnight-ntwrk/midnight-js-network-provider`, which is **not published on npm** (404). The network layer is therefore composed from the packages that *do* ship in 4.1.1: `midnight-js-network-id` (network scoping), `midnight-js-indexer-public-data-provider` (Preprod indexer) and `midnight-js-protocol` (transaction build/verify).
 
 ### 3. Full Provider Set Configuration
-The dApp configures the complete Midnight provider suite for Preprod:
+The dApp configures the complete Midnight provider suite for Preprod (`src/midnight/providers.ts`):
 | Provider Role | Midnight Package / Endpoint | Purpose |
 |---|---|---|
-| **Wallet Provider** | `@midnight-ntwrk/dapp-connector-api` | Manages user keys, signing, and addresses |
+| **Wallet Provider** | `@midnight-ntwrk/dapp-connector-api` (wrapped as `walletProvider`) | Serialises/uses the wallet's `balanceUnsealedTransaction` for balancing |
 | **Public Data Provider** | `@midnight-ntwrk/midnight-js-indexer-public-data-provider` (`https://indexer.preprod.midnight.network/api/v4/graphql`) | Queries on-chain contract state and blocks |
-| **WebSocket Stream** | `wss://indexer.preprod.midnight.network/api/v4/graphql/ws` | Real-time subscription to state transitions |
-| **Proof Provider** | `@midnight-ntwrk/midnight-js-http-client-proof-provider` (`http://127.0.0.1:6300` / WebWorker) | Generates client-side zero-knowledge proofs |
-| **Private State Provider** | `@midnight-ntwrk/midnight-js-level-private-state-provider` | Stores user witness credentials and private salt securely in browser LevelDB storage |
-| **ZK Config Provider** | `@midnight-ntwrk/midnight-js-node-zk-config-provider` | Loads compiled circuit keys (`keys/`) and artifacts |
+| **WebSocket Stream** | `wss://indexer.preprod.midnight.network/api/v4/graphql/ws` (native browser `WebSocket` passed explicitly) | Real-time subscription to state transitions |
+| **Proof Provider** | `@midnight-ntwrk/midnight-js-dapp-connector-proof-provider` (wallet-local prover), falling back to `@midnight-ntwrk/midnight-js-http-client-proof-provider` (`npm run proof-server:start` → `http://127.0.0.1:6300`) | Generates zero-knowledge proofs — on-device first, proof server only if the wallet cannot prove |
+| **Private State Provider** | `@midnight-ntwrk/midnight-js-level-private-state-provider` | Stores witness credentials (`my_bid`, `my_public_key`) in encrypted browser LevelDB |
+| **ZK Config Provider** | `@midnight-ntwrk/midnight-js-fetch-zk-config-provider` | Fetches compiled circuit keys from `public/zk/keys/*.prover|.verifier` and `public/zk/zkir/*.bzkir` over HTTP (copied from `managed/auction` by `scripts/copy-zk-artifacts.mjs`) |
+| **Submission** | DApp Connector `submitTransaction` (via `midnightProvider`) | Broadcasts the proven transaction and returns its identifiers |
+
+Nothing in this path is simulated: if the wallet, indexer or prover is unavailable the UI shows the real error instead of a fabricated transaction hash.
 
 ---
 
@@ -93,7 +97,7 @@ The user interface adheres to strict zero-knowledge UX standards:
 ## Tech Stack
 - **Network:** Midnight Network (Preprod Testnet & Preview Testnet)
 - **Smart Contract:** Compact language
-- **SDK & Cryptography:** Midnight.js SDK, `@midnight-ntwrk/compact-runtime`, `@midnight-ntwrk/dapp-connector-api`, `@midnight-ntwrk/midnight-js-network-id`
+- **SDK & Cryptography:** Midnight.js SDK (`@midnight-ntwrk/dapp-connector-api`, `midnight-js-protocol`, `midnight-js-dapp-connector-proof-provider`, `midnight-js-fetch-zk-config-provider`, `midnight-js-indexer-public-data-provider`, `midnight-js-level-private-state-provider`, `midnight-js-network-id`), `@midnight-ntwrk/compact-runtime`
 - **Frontend:** React 18, Vite, TypeScript, Vanilla CSS (Glassmorphism Dark Mode)
 - **Wallet:** Midnight Lace Wallet integration
 - **Deployment:** Vercel (Production) & Docker (Local Proof Server)
@@ -127,6 +131,12 @@ Step-by-step commands to clone, install, and run the dApp locally:
    ```bash
    npm run build
    ```
+5. Typecheck the whole frontend + CLI scripts:
+   ```bash
+   npm run typecheck
+   ```
+
+`npm run dev` and `npm run build` both run `scripts/copy-zk-artifacts.mjs` first, which copies the compiled ZK keys from `managed/auction` into `public/zk` so the browser can fetch them.
 
 ---
 
@@ -142,6 +152,54 @@ The test suite in [`tests/auction.test.ts`](tests/auction.test.ts) provides 5 in
 - **State Transition (Rejection):** Asserts that bids lower than or equal to the current highest bid fail circuit assertions (`Bid is not high enough`).
 - **Privacy Verification (Client-side Rejection):** Proves that losing bids fail locally in the ZK prover, ensuring zero data leakage to the public ledger.
 - **Privacy Verification (Witness Isolation):** Verifies that private witnesses (`my_bid`, `my_public_key`) and private state secrets are isolated from the public ledger state.
+
+---
+
+## Project Structure
+```
+contracts/auction.compact       Compact sealed-bid auction circuit
+managed/auction/                Compiled contract + ZK keys (keys/, zkir/)
+src/midnight/config.ts          Network, contract address, ZK artifact & proof-server config
+src/midnight/wallet.ts          DApp Connector discovery/connect + typed wallet errors
+src/midnight/auctionContract.ts Compiled contract binding, witnesses, ledger decoding
+src/midnight/providers.ts       Real provider set (indexer, prover, private state, wallet)
+src/hooks/useMidnight.ts        React hook: connection, state reading, circuit calls
+src/components/WalletConnect.tsx Connect / disconnect / address / balance / wallet errors
+src/components/CircuitCall.tsx  Circuit call UI, proving stages, on-chain result
+scripts/copy-zk-artifacts.mjs   Copies managed/auction → public/zk for the ZK config provider
+vercel.json                     Vercel build/output config for the Vite app
+```
+
+---
+
+## Deploy (CLI)
+Exact commands to deploy the frontend with the Vercel CLI:
+
+```bash
+# one-time setup
+npm install -g vercel
+vercel login
+
+# build (the prebuild hook copies managed/auction ZK keys into public/zk/)
+npm ci
+npm run build
+
+# preview deployment
+vercel
+
+# production deployment -> https://midnight-sealed-auction.vercel.app
+vercel --prod
+```
+
+Relevant config in [`vercel.json`](vercel.json): `"buildCommand": "npm run build"`, `"outputDirectory": "dist"`.
+
+Contract (Preprod) deploy CLI, if you redeploy the circuit yourself:
+
+```bash
+docker compose up -d --wait     # local proof server (optional but recommended)
+npm run compile                 # compact compile contracts/auction.compact managed/auction
+npm run deploy                  # deploys to Preprod and writes .midnight-state.json
+```
 
 ---
 
