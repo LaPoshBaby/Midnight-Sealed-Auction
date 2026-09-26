@@ -9,7 +9,7 @@ This document provides a comprehensive verification and audit report for Level 2
 | Verification Criteria | Status | Details |
 |---|:---:|---|
 | **Midnight.js SDK Integration** | **PASS** | Integrated via `@midnight-ntwrk/dapp-connector-api`, `@midnight-ntwrk/midnight-js-network-id`, and full provider suite |
-| **Wallet Connect / Disconnect** | **PASS** | Lace extension support via `InitialAPI` / `DAppConnectorAPI`, address formatting, balance query, clipboard copy & error handling |
+| **Wallet Connect / Disconnect** | **PASS** | Lace extension support via `InitialAPI.connect()` → `ConnectedAPI`, address formatting, balance query, clipboard copy & typed error handling |
 | **Circuit UI Execution** | **PASS** | `bid()` circuit triggered directly from UI with multi-stage local proving (`isProving`, `isSubmitting`) |
 | **Zero Private Input Exposure** | **PASS** | Private bid kept in client witness sandbox; explicit label: `🔒 Proved without revealing your input` |
 | **Live Vercel Deployment** | **PASS** | Reachable at [https://midnight-sealed-auction.vercel.app](https://midnight-sealed-auction.vercel.app) |
@@ -22,49 +22,46 @@ This document provides a comprehensive verification and audit report for Level 2
 
 ## 2. Midnight.js SDK & DApp Connector Architecture
 
-The dApp connects to the user's browser wallet using the standard Midnight DApp Connector API (`@midnight-ntwrk/dapp-connector-api`):
+The dApp connects to the user's browser wallet using the standard Midnight DApp Connector API (`@midnight-ntwrk/dapp-connector-api`), with the 4.x connect flow:
 
 ```typescript
-// src/hooks/useMidnight.ts
-import type { DAppConnectorAPI, InitialAPI } from '@midnight-ntwrk/dapp-connector-api';
+// src/midnight/wallet.ts
+import type { ConnectedAPI, InitialAPI } from '@midnight-ntwrk/dapp-connector-api';
 import { setNetworkId } from '@midnight-ntwrk/midnight-js-network-id';
 
-// Configure network scope
-setNetworkId('preprod');
+// Find the injected Lace wallet
+const lace: InitialAPI = discoverWallet();          // window.midnight.* with .connect()
+const api: ConnectedAPI = await lace.connect('preprod');
 
-// Connect to Midnight Lace extension
-const laceApi: InitialAPI = window.midnight.mnLace;
-const api: DAppConnectorAPI = await laceApi.enable();
-const address = await api.getChangeAddress();
+// Verify the wallet is on Preprod, then scope the SDK to that network
+const { networkId, indexerUri, indexerWsUri } = await api.getConfiguration();
+setNetworkId(networkId ?? 'preprod');
+
+const address = await api.getUnshieldedAddress();   // public (unshielded) address
 ```
 
 ### Full Provider Set Configuration
 ```typescript
-export interface MidnightDAppProviders {
-  networkId: NetworkId;
-  contractAddress: string;
-  indexerHttpUrl: string;
-  indexerWsUrl: string;
-  proofServerUrl: string;
+// src/midnight/providers.ts — built from the connected session
+{
+  publicDataProvider: indexerPublicDataProvider(indexerUri, indexerWsUri, window.WebSocket),
+  zkConfigProvider: new FetchZkConfigProvider(baseUrl + '/zk'),   // public/zk/keys/*.prover
+  proofProvider: dappConnectorProofProvider(api, zkConfigProvider, costModel) // local wallet prover,
+                                    // falling back to httpClientProofProvider when unavailable
+  privateStateProvider: levelPrivateStateProvider({ ... }),       // encrypted browser LevelDB
+  walletProvider: balanceUnsealedTransaction(session.api),        // real wallet balancing
+  midnightProvider: submitTransaction(session.api),               // real on-chain submission
 }
-
-export const PREPROD_PROVIDERS: MidnightDAppProviders = {
-  networkId: 'preprod',
-  contractAddress: 'ddfce3729deff0625222a385625130a06a8f5467592d5fd8d8b3a0fa3bcc8fb7',
-  indexerHttpUrl: 'https://indexer.preprod.midnight.network/api/v4/graphql',
-  indexerWsUrl: 'wss://indexer.preprod.midnight.network/api/v4/graphql/ws',
-  proofServerUrl: 'http://127.0.0.1:6300',
-};
 ```
 
 ---
 
 ## 3. Wallet Connection & Error States
 
-- **Connection Protocol:** Checks `window.midnight?.mnLace`. If present, calls `enable()` to initialize a secure session.
-- **Address Formatting:** Truncates 64-character addresses for display (`addr...8chars`) with a one-click copy to clipboard button.
-- **Balance Tracking:** Displays real-time tNIGHT testnet balance.
-- **Error Handling:** Gracefully catches user rejections (`code: -32000`), network mismatches, and missing extension errors, displaying an alert banner with a dismiss control.
+- **Connection Protocol:** Checks `window.midnight` for an injected connector with `.connect()` (preferring the one whose `rdns`/`name` mentions Lace). If present, calls `connect('preprod')`.
+- **Address Formatting:** Truncates addresses for display (`addr...8chars`) with a one-click copy to clipboard button.
+- **Balance Tracking:** Displays the real tNIGHT unshielded balance from `getUnshieldedBalances()`.
+- **Error Handling:** Typed `WalletError` codes — `not-installed` (extension missing), `user-rejected` (rejected in Lace), `network-mismatch` (wallet on a non-Preprod network) — rendered as a dismissible banner in `WalletConnect.tsx`.
 
 ---
 
