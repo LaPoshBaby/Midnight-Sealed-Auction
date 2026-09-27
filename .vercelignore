@@ -1,0 +1,6 @@
+Midnight-Sealed-Auction/
+node_modules/
+dist/
+install.log
+.env*
+.github/
