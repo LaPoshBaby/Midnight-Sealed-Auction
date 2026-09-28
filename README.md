@@ -48,6 +48,10 @@ Nothing in this path is simulated: if the wallet, indexer or prover is unavailab
 ## Privacy Model
 The privacy architecture separates public on-chain verifiable state from private off-chain witness state:
 
+- **What is PUBLIC:** `highest_bid`, `highest_bidder` and `is_active` — written to the on-chain ledger, where any observer can read them.
+- **What is PRIVATE:** `my_bid` (the bidder's secret bid amount) and `my_public_key` (the bidder's identity witness) — both live only inside the encrypted client-side witness sandbox and never leave the browser.
+- **What the user PROVES without revealing:** that they hold a bid `b` with `b > current highest_bid` and that the auction is active — verified by the Compact ZK circuit without disclosing `b`, the bidder's identity, or any losing bid.
+
 | Component | Visibility | Where it Lives | Description |
 |---|---|---|---|
 | `highest_bid` | **PUBLIC** | On-Chain Ledger | Current leading bid amount in tNIGHT |
