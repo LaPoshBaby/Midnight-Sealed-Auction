@@ -213,6 +213,18 @@ npm run deploy                  # deploys to Preprod and writes .midnight-state.
 
 ![Level 2 Demo Walkthrough](docs/demo.gif)
 
+### Recording Checklist (under 2 minutes, one continuous take)
+
+| # | Timestamp | What must be on screen |
+|---|-----------|------------------------|
+| 1 | 0:00 – 0:15 | Disconnected state → click **Connect Lace Wallet** → wallet address + balance appear. Hold for 3s. |
+| 2 | 0:15 – 0:35 | Enter the shielded bid → click **Call bid() Circuit with ZK Proof** → keep the **Generating ZK Proof…** loading state visible until it completes (no cuts). |
+| 3 | 0:35 – 1:10 | Result card: transaction hash, Preprod block height, timestamp, disclosed on-chain bid. |
+| 4 | 1:10 – 1:30 | Scroll back to the input box and the `🔒 Proved without revealing your input` banner — state that the private bid value never appeared on-chain (caption, since the clip has no audio). |
+| 5 | 1:30 – 1:50 | Click **Disconnect** → show the disconnected notice → end. |
+
+Rules for the take: no jump cuts between steps, keep the wallet address and the proving spinner in frame, and never display the bid value in the result card.
+
 ---
 
 ## Initial Idea
