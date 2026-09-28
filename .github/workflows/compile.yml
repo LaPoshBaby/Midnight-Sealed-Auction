@@ -38,6 +38,12 @@ jobs:
       - name: Run Tests
         run: npm test
 
+      - name: Typecheck
+        run: npm run typecheck
+
+      - name: Build Frontend
+        run: npm run build
+
       - name: Commit Managed Folder
         run: |
           git config --global user.name "LaPoshBaby"
