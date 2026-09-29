@@ -18,7 +18,8 @@
     "check-balance": "npx tsx src/check-balance.ts",
     "network": "npx tsx src/network.ts",
     "proof-server:start": "docker compose up -d",
-    "proof-server:stop": "docker compose down"
+    "proof-server:stop": "docker compose down",
+    "record:wallet": "node scripts/record-wallet-shot.mjs"
   },
   "dependencies": {
     "@midnight-ntwrk/compact-runtime": "0.16.0",
