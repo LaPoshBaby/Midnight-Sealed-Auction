@@ -811,3 +811,36 @@ code, pre {
   color: var(--accent-cyan);
   text-decoration: none;
 }
+
+/* Mobile responsiveness (Level 3 polish) */
+@media (max-width: 640px) {
+  .app-container {
+    padding: 20px 14px 44px;
+  }
+
+  .app-header {
+    margin-bottom: 24px;
+  }
+
+  .app-header h1 {
+    font-size: 24px;
+  }
+
+  /* long addresses and hashes must never force horizontal scroll */
+  code,
+  pre {
+    word-break: break-all;
+  }
+
+  /* comfortable tap targets on touch screens */
+  .app-container button {
+    min-height: 44px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .spinner-ring,
+  .spinner-small {
+    animation: none;
+  }
+}
