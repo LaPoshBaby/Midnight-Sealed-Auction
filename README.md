@@ -10,8 +10,8 @@
 ## Contract Address
 | Network  | Address                                                          |
 |----------|------------------------------------------------------------------|
-| Preprod  | `ddfce3729deff0625222a385625130a06a8f5467592d5fd8d8b3a0fa3bcc8fb7` |
 | Preview  | `b671842d01b496fe92996677264432174343c0560d0b6d7bfed48612ac95702e` |
+| Preprod  | `ddfce3729deff0625222a385625130a06a8f5467592d5fd8d8b3a0fa3bcc8fb7` |
 
 ## What This Does
 This dApp implements a decentralized sealed-bid auction. Participants connect their Midnight Lace wallet and submit private bids using zero-knowledge proofs. The Compact contract logic ensures that a bid is only accepted if it is strictly greater than the current highest bid. Losing bids are caught and rejected locally inside the browser's cryptographic prover, guaranteeing that losing bid amounts and participant identities never touch the public blockchain or transaction pool.
