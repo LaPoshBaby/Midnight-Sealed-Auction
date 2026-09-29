@@ -19,7 +19,7 @@
 import { chromium } from 'playwright-core';
 import { spawn, execSync } from 'node:child_process';
 import { mkdir, writeFile, readFile, stat, rm } from 'node:fs/promises';
-import { existsSync } from 'node:fs';
+import { existsSync, readFileSync } from 'node:fs';
 import http from 'node:http';
 import path from 'node:path';
 

@@ -239,6 +239,24 @@ npm run deploy                  # deploys to Preprod and writes .midnight-state.
 ---
 
 ## Demo Video
+
+**Level 3 reel (36s)** — the three proof shots from the level checklist, captured
+from real data by [`scripts/record-level3-reel.mjs`](scripts/record-level3-reel.mjs):
+the built dApp, a live `npm test` run (5/5 passing), the green CI run for the exact
+commit, and the PROPOSAL.md structure:
+
+![Midnight Sealed-Bid Auction — Level 3 reel](docs/level3-reel.mp4)
+
+### Level 3 checklist coverage
+
+1. **Full dApp flow** — shown in the reel's UI scenes; the wallet-approval moments
+   (Lace connect, bid confirmation) are in the Level 2 walkthrough below and in
+   `docs/demo.mp4`, since the extension approval can only be performed by the user.
+2. **Terminal test output (3+ passing)** — the reel renders the live `npm test` run:
+   5/5 passing.
+3. **README CI badge green** — the reel shows the real CI run for the recording
+   commit, fetched from the GitHub API.
+
 - **Walkthrough Video (MP4):** [docs/demo.mp4](docs/demo.mp4)
 - **Live Animated Walkthrough:**
 
