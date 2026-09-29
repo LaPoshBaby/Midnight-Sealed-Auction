@@ -1,6 +1,7 @@
 node_modules/
 dist/
 .midnight-wallet-state/
+.midnight-state.json
 mn-demo2/
 /public/zk/
 *.log
