@@ -1,4 +1,7 @@
 # Midnight Sealed-Bid Auction
+
+[![CI](https://github.com/LaPoshBaby/Midnight-Sealed-Auction/actions/workflows/ci.yml/badge.svg)](https://github.com/LaPoshBaby/Midnight-Sealed-Auction/actions/workflows/ci.yml)
+
 > A privacy-preserving sealed-bid auction contract and dApp on the Midnight Network where losing bids remain completely shielded and never touch the chain.
 
 ## Live Demo
@@ -115,7 +118,7 @@ The user interface adheres to strict zero-knowledge UX standards:
 
 ---
 
-## Run Locally
+## Setup & Run Locally
 Step-by-step commands to clone, install, and run the dApp locally:
 
 1. Clone the repository:
@@ -156,6 +159,34 @@ The test suite in [`tests/auction.test.ts`](tests/auction.test.ts) provides 5 in
 - **State Transition (Rejection):** Asserts that bids lower than or equal to the current highest bid fail circuit assertions (`Bid is not high enough`).
 - **Privacy Verification (Client-side Rejection):** Proves that losing bids fail locally in the ZK prover, ensuring zero data leakage to the public ledger.
 - **Privacy Verification (Witness Isolation):** Verifies that private witnesses (`my_bid`, `my_public_key`) and private state secrets are isolated from the public ledger state.
+
+---
+
+## CI/CD
+
+The badge under the title reports the pipeline defined in
+[`.github/workflows/ci.yml`](.github/workflows/ci.yml). On every push to `main`
+and every pull request, GitHub Actions:
+
+1. checks out the repo and installs Node.js 22 (with npm caching),
+2. `npm ci` — clean, lockfile-exact dependencies,
+3. installs the Compact compiler pinned to `0.31.1`,
+4. compiles `contracts/auction.compact` → `managed/auction/`,
+5. typechecks the TypeScript sources (`tsc --noEmit`),
+6. runs the 5-test auction suite (`npm test`) against the freshly compiled
+   circuits,
+7. builds the production front end (`npm run build`).
+
+A green badge means the contract compiles, all tests pass and the dApp builds —
+on that exact commit. (`deploy.yml` additionally deploys the contract on manual
+dispatch; `ci.yml` is the always-on gate.)
+
+---
+
+## Product Proposal
+
+See [PROPOSAL.md](PROPOSAL.md) — the product pitch, the data model and the
+mainnet feasibility assessment.
 
 ---
 
